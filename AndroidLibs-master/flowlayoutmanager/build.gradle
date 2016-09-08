@@ -1,0 +1,145 @@
+// to publish run ./gradlew clean bintrayUpload
+
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+project.ext {
+    libVersion = '1.2.3.2'
+    libVersionCode = 7
+    libGroupId = 'com.xiaofeng.android'
+    libArtifactId = 'flowlayoutmanager'
+    gitUrl = 'git@github.com:xiaofeng-han/AndroidLibs.git'
+    siteUrl = 'https://github.com/xiaofeng-han/AndroidLibs'
+}
+
+group = 'com.xiaofeng.android'
+version = libVersion
+
+android {
+    compileSdkVersion androidCompileSdkVersion
+    buildToolsVersion androidBuildToolVersion
+    resourcePrefix "xiaofeng__"
+    defaultConfig {
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
+        versionCode libVersionCode
+        versionName libVersion
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    testOptions {
+        unitTests.returnDefaultValues = false;
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    dexOptions {
+        incremental true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile 'junit:junit:4.12'
+    compile(group: 'com.android.support', name: 'appcompat-v7', version: supportLibVersion)
+    compile(group: 'com.android.support', name: 'recyclerview-v7', version: supportLibVersion)
+    androidTestCompile 'com.android.support:support-annotations:23.3.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                name 'FlowLayoutManager for android RecyclerView'
+                url siteUrl
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'GPL-v3.0'
+                        url 'http://www.gnu.org/licenses/gpl-3.0.en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'xiaofeng-han'
+                        name 'Xiaofeng Han'
+                        email 'hhhanxf@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url gitUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+bintray {
+    user = properties.getProperty('bintray.user')
+    key = properties.getProperty('bintray.apikey')
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = 'FlowLayoutManager'
+        userOrg = 'hhhanxf'
+        licenses = ['GPL-3.0']
+        vcsUrl = gitUrl
+        githubRepo = 'xiaofeng-han/AndroidLibs'
+        githubReleaseNotesFile = 'README.md'
+        publish = true
+        version {
+            name = libVersion
+            desc = 'FLowLayoutManager'
+            released  = new Date()
+            vcsTag = libVersion
+            gpg {
+                sign = true
+                passphrase = properties.getProperty('bintray.gpg.password')
+            }
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.10'
+}
