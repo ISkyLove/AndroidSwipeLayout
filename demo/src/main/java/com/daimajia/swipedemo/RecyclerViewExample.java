@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 import com.daimajia.swipe.util.Attributes;
 import com.daimajia.swipedemo.adapter.RecyclerViewAdapter;
@@ -31,16 +32,16 @@ public class RecyclerViewExample extends Activity {
      * 3) Handle any touch events apart from scrolling: This is now done in our adapter's ViewHolder
      */
 
-    private RecyclerView recyclerView;
+    private PPRecycleView recyclerView;
     private RecyclerView.Adapter mAdapter;
 
-    private ArrayList<String> mDataSet;
+    private ArrayList<DataBean> mDataSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.recyclerview);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = (PPRecycleView) findViewById(R.id.recycler_view);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar actionBar = getActionBar();
             if (actionBar != null) {
@@ -49,21 +50,38 @@ public class RecyclerViewExample extends Activity {
         }
 
         // Layout Managers:
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new PPLinearLayoutManager(this));
 
         // Item Decorator:
         recyclerView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider)));
         recyclerView.setItemAnimator(new FadeInLeftAnimator());
 
         // Adapter:
+        mDataSet = new ArrayList<DataBean>();
         String[] adapterData = new String[]{"Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
-        mDataSet = new ArrayList<String>(Arrays.asList(adapterData));
+        for (int i = 0; i < adapterData.length; i++) {
+            DataBean item = new DataBean();
+            item.setName(adapterData[i]);
+            item.setOpen(false);
+            mDataSet.add(item);
+        }
+
+
         mAdapter = new RecyclerViewAdapter(this, mDataSet);
-        ((RecyclerViewAdapter) mAdapter).setMode(Attributes.Mode.Multiple);
+        // ((RecyclerViewAdapter) mAdapter).setMode(Attributes.Mode.Single);
         recyclerView.setAdapter(mAdapter);
 
         /* Listeners */
         recyclerView.setOnScrollListener(onScrollListener);
+        recyclerView.setonPPInterceptTouchEvent(new PPRecycleView.onPPInterceptTouchEvent() {
+            @Override
+            public boolean onPPInterceptTouchEvent(MotionEvent e) {
+                 if(mAdapter!=null){
+
+                 }
+                return false;
+            }
+        });
     }
 
     /**
@@ -81,6 +99,7 @@ public class RecyclerViewExample extends Activity {
             super.onScrolled(recyclerView, dx, dy);
             // Could hide open views here if you wanted. //
         }
+
     };
 
 

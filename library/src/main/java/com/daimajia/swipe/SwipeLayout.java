@@ -56,6 +56,8 @@ public class SwipeLayout extends FrameLayout {
 
     private DoubleClickListener mDoubleClickListener;
 
+    private ShouldIntercepParentTouchEventListen mShowInterceptParentTouchEventListen;
+
     private boolean mSwipeEnabled = true;
     private boolean[] mSwipesEnabled = new boolean[]{true, true, true, true};
     private boolean mClickToClose = false;
@@ -125,6 +127,15 @@ public class SwipeLayout extends FrameLayout {
         void onUpdate(SwipeLayout layout, int leftOffset, int topOffset);
 
         void onHandRelease(SwipeLayout layout, float xvel, float yvel);
+
+    }
+
+    public interface ShouldIntercepParentTouchEventListen {
+        boolean shouldIntercepParentTouchEvent(MotionEvent e);
+    }
+
+    public void setShouldIntercepParentTouchEventListen(ShouldIntercepParentTouchEventListen listen) {
+        mShowInterceptParentTouchEventListen = listen;
     }
 
     public void addSwipeListener(SwipeListener l) {
@@ -902,12 +913,20 @@ public class SwipeLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+
         if (!isSwipeEnabled()) {
             return false;
         }
+
         if (mClickToClose && getOpenStatus() == Status.Open && isTouchOnSurface(ev)) {
             return true;
         }
+
+        if (mShowInterceptParentTouchEventListen != null) {
+            return mShowInterceptParentTouchEventListen.shouldIntercepParentTouchEvent(ev);
+        }
+
+
         for (SwipeDenier denier : mSwipeDeniers) {
             if (denier != null && denier.shouldDenySwipe(ev)) {
                 return false;
@@ -949,6 +968,7 @@ public class SwipeLayout extends FrameLayout {
             default://handle other action, such as ACTION_POINTER_DOWN/UP
                 mDragHelper.processTouchEvent(ev);
         }
+
         return mIsBeingDragged;
     }
 
