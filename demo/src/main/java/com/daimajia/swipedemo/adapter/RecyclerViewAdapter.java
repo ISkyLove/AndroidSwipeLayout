@@ -41,7 +41,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             textViewPos = (TextView) itemView.findViewById(R.id.position);
             textViewData = (TextView) itemView.findViewById(R.id.text_data);
             buttonDelete = (TextView) itemView.findViewById(R.id.trash);
-
+            swipeLayout.close(false);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
