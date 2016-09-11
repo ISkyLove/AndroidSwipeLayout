@@ -26,4 +26,6 @@ public class PPLinearLayoutManager extends LinearLayoutManager {
         Log.i("linzhenhua", "canScrollVertically" + super.canScrollVertically());
         return super.canScrollVertically();
     }
+
+
 }
